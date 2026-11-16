@@ -1,0 +1,39 @@
+name: Auto-Update Version
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'version.txt' # Prevents an infinite loop when the Action commits the updated file
+
+permissions:
+  contents: write # Grants the workflow permission to push changes back to the repo
+
+jobs:
+  bump-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Increment version.txt
+        run: |
+          if [ ! -f version.txt ]; then
+            echo "0.1.0" > version.txt
+          else
+            CURRENT_VERSION=$(cat version.txt | tr -d '[:space:]')
+            IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+            PATCH=$((PATCH + 1))
+            NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+            echo "$NEW_VERSION" > version.txt
+            echo "Updated version from $CURRENT_VERSION to $NEW_VERSION"
+          fi
+
+      - name: Commit and push updated version.txt
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add version.txt
+          git commit -m "chore: bump version to $(cat version.txt) [skip ci]"
+          git push
