@@ -1,0 +1,115 @@
+html {
+    /* Prevent iOS from automatically resizing text */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+body {
+    background-color: #e0e0ff;
+    padding: 1rem;
+}
+h1 {
+    text-align: center;
+}
+.explanatoryText {
+    font-size: 1.25rem;
+}
+.explanatoryText .important {
+    font-weight: bold;
+}
+.feedbackBlock {
+    text-align: center;
+    border-style: double;
+    border-color: #8080c0;
+    margin: 10px;
+    padding: 5px;
+}
+.feedbackPrompt {
+    font-size: 1.5rem;
+}
+.feedbackValue {
+    font-size: 1.5rem;
+    font-weight: bold;
+    width: 100%;
+}
+.feedbackTable {
+    border-collapse: collapse;
+    width: 100%;
+}
+.feedbackTable tr.subsequentRow {
+    border-top: thin solid #8080c0;
+}
+.feedbackTable td.mainColumn {
+    width: 100%;
+}
+.choicesBlock {
+    border-style: double;
+    border-color: #8080c0;
+    margin: 10px;
+    padding: 5px;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+}
+.choicesBlock label {
+    font-size: 1.5rem;
+}
+.choicesBlock .alreadyDone {
+    font-style: italic;
+}
+.buttonBlock {
+    text-align: center;
+    margin: 10px;
+}
+.btn {
+    padding: 12px 24px;
+    font-size: 1.25rem;
+    font-weight: 600;
+    /* border: none; */
+    border: thin solid #80c080;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.btn-yes {
+    background-color: #e0ffe0;
+    color: black;
+}
+.btn-yes:hover {
+    background-color: #d0efd0;
+}
+.btn-yes:active {
+    transform: scale(0.98);
+}
+select.userSelector, select.userSelector::picker(select) {
+    appearance: base-select;
+}
+select.userSelector {
+    padding: 0.5rem 1rem;
+    border: thin solid #8080c0;
+    border-radius: 6px;
+    background-color: #ffffff;
+    font-family: inherit;
+    cursor: pointer;
+    font-size: 1.25rem;
+}
+select.userSelector::picker-icon {
+    color: black;
+    transition: transform 0.2s ease;
+}
+select.userSelector:open::picker-icon {
+    transform: rotate(180deg);
+}
+::picker(select) {
+    border: thin solid #8080c0;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    background-color: #ffffff;
+}
+option {
+    padding: 0.5rem;
+    cursor: pointer;
+    font-size: 1.25rem;
+}
+option:hover, option:focus {
+    background-color: #d0d0d0;
+}
