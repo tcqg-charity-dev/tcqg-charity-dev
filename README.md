@@ -1,5 +1,8 @@
 ## Hi there 👋
 
+I've set this up as the root directory for an inventory management system for the Tri-County Quilt Guild's charity quilts.
+This is the development version of the site.
+
 <!--
 **tcqg-charity-dev/tcqg-charity-dev** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
 
