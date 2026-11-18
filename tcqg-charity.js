@@ -39,9 +39,10 @@ function getQuiltIdParameter() {
 // --------------------------------------------------------------------------------------------------------------------
 // Fetch Members or Quilts From the Server
 
-//const url_members = "./members.json";
-const url_members = 'https://raw.githubusercontent.com/tcqg-charity-dev/tcqg-charity-dev/main/members.json?junk=1';
+const url_members = "./members.json";
+//const url_members = 'https://raw.githubusercontent.com/tcqg-charity-dev/tcqg-charity-dev/main/members.json?junk=1';
 const url_quilts  = "./quilts.json";
+//const url_quilts = 'https://raw.githubusercontent.com/tcqg-charity-dev/tcqg-charity-dev/main/quilts.json?junk=1';
 
 
 async function fetchJsonFile(url) {
