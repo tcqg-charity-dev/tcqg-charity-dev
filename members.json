@@ -2,11 +2,19 @@
     {
         "id":   1001,
         "name": "Mary Wilyerd",
-        "moniker": "Mary"
+        "moniker": "Mary",
+        "isActive": true
     },
     {
         "id":   1002,
         "name": "Shari Stone",
-        "moniker": "Shari"
+        "moniker": "Shari",
+        "isActive": true
+    },
+    {
+        "id":   1003,
+        "name": "Margaret Movedon",
+        "moniker": "Marge",
+        "isActive": false
     }
 ]
