@@ -1,0 +1,225 @@
+<html>
+    <head>
+        <title>TCQG Charity Quilt Management System</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="tcqg-charity.css"/>
+        <script defer src="tcqg-charity.js"></script>
+        <style>
+/* By default, all sections are hidden until everything is loaded. */
+.pick-one-section {
+    display: none;
+}
+/* This section is shown initially and hidden after we decide which message to show. */
+#loading-placeholder {
+    display: none;
+}
+.moniker, .moniker2 {
+    font-weight: bold;
+}
+        </style>
+        <script>
+            // --------------------------------------------------------------------------------------------------------
+            // This code will run as soon as the DOM is parsed, and before images finish loading.
+            // The tcqg-charity.js file will have already been loaded and executed.
+            // The tcqg-charity.css file will have already been loaded and parsed.
+            // NOTE: I was using the DOMContentLoad event, but at least on Edge this would occasionally throw errors
+            //       because the code would run before tcqg-charity.js was loaded. So I switched to the load event.
+            //       Hopefully that works around browser errors from Microsoft.
+            window.addEventListener('load', async () => {
+                showLoadingPlaceholder();
+
+                let requested_memberId = getMemberIdParameter();
+console.log('requested_memberId='+requested_memberId);
+                const stored_memberId = getStoredMemberId();
+console.log('stored_memberId='+stored_memberId);
+                // If the request doesn't specify a memberId parameter, then the user just wants to verify that their
+                // device is set up to run as the memberId in local storage.
+                if ( requested_memberId == null ) {
+                    requested_memberId = stored_memberId;
+                }
+
+                // If there is no memberId in the request or in local storage, just show the appropriate message and
+                // return without downloading the member list.
+                if ( requested_memberId == null ) {
+                    showNoMemberRequested();
+                    return;
+                }
+
+                // This function call will not return until the members.json file has been acquired and parsed.
+                const members = await fetchMembers();
+console.log('members:');
+console.log(members);
+                if ( members == null ) {
+                    showSomethingWentWrong('Unable to fetch members');
+                    return;
+                }
+
+                // Find the requested member object.
+                const requested_member = members.find(member => member.id == requested_memberId);
+                if ( requested_member == undefined ) {
+                    showSomethingWentWrong('Unable to find member #'+requested_memberId);
+                    return;
+                }
+
+                // Check whether the requested member is active.
+                if ( requested_member.isActive == false ) {
+                    showMemberIsInactive(requested_member);
+                    return;
+                }
+
+                // If the requested member is already stored, just show that everything's set up.
+                if ( requested_memberId == stored_memberId ) {
+                    showAlreadySetUp(requested_member);
+                    return;
+                }
+
+                // Let the user confirm that they want to set up for the requested member.
+                if ( stored_memberId == null ) {
+                    showStoreMemberId(requested_member);
+                } else {
+                    let stored_member = members.find(member => member.id == stored_memberId);
+                    if ( stored_member == null ) {
+                        clearStoredMemberId();
+                        showStoreMemberId(requested_member);
+                    } else {
+                        showOverrideMemberId(requested_member,stored_member);
+                    }
+                }
+            });
+
+            // --------------------------------------------------------------------------------------------------------
+            // Utility Functions to show and hide sections.
+            function showLoadingPlaceholder() {
+                const loader = document.getElementById('loading-placeholder');
+                if ( loader ) loader.style.display = 'block';
+            }
+            function hideLoadingPlaceholder() {
+                const loader = document.getElementById('loading-placeholder');
+                if ( loader ) loader.style.display = 'none';
+            }
+            function showSomethingWentWrong(message) {
+                hideLoadingPlaceholder();
+                const section = document.getElementById('something-went-wrong');
+                if ( section ) {
+                    const span_message = section.querySelector('#message');
+                    if ( span_message ) span_message.innerText = message;
+                    section.style.display = 'block';
+                }
+            }
+            function showNoMemberRequested() {
+                hideLoadingPlaceholder();
+                const section = document.getElementById('no-member-requested');
+                if ( section ) {
+                    section.style.display = 'block';
+                }
+            }
+            function showMemberIsInactive(member) {
+                hideLoadingPlaceholder();
+                const section = document.getElementById('member-is-inactive');
+                if ( section ) {
+                    const moniker_spans = section.querySelectorAll('.moniker');
+                    if ( moniker_spans ) moniker_spans.forEach(span => { span.innerText = member.moniker; });
+                    const name_spans = section.querySelectorAll('.name');
+                    if ( name_spans ) name_spans.forEach(span => { span.innerText = member.name; });
+                    section.style.display = 'block';
+                }
+            }
+            function showSectionForMember(sectionId,member) {
+                hideLoadingPlaceholder();
+                const section = document.getElementById(sectionId);
+                if ( section ) {
+                    const moniker_spans = section.querySelectorAll('.moniker');
+                    if ( moniker_spans ) moniker_spans.forEach(span => { span.innerText = member.moniker; });
+                    const name_spans = section.querySelectorAll('.name');
+                    if ( name_spans ) name_spans.forEach(span => { span.innerText = member.name; });
+                    section.style.display = 'block';
+                }
+            }
+            function showAlreadySetUp(member) {
+                showSectionForMember('already-set-up',member);
+            }
+            function showStoreMemberId(member) {
+                showSectionForMember('store-member-id',member);
+            }
+            function showOverrideMemberId(member,member2) {
+                showSectionForMember('override-member-id',member2);
+                showSectionForMember('store-member-id',member);
+            }
+
+            // --------------------------------------------------------------------------------------------------------
+            // Function to confirm storing the member locally.
+            function confirmStoringMember() {
+                let requested_memberId = getMemberIdParameter();
+console.log('requested_memberId='+requested_memberId);
+                storeMemberId(requested_memberId);
+                window.location.reload();
+            }
+        </script>
+    </head>
+    <body>
+        <h1>TCQG Charity Quilts</h1>
+        <noscript>
+            <p class="explanatoryText important">
+This device has disabled execution of Javascript.
+Since interacting with the TCQG Charity Quilts requires Javascript, you will need to either enable Javascript on this
+device, or switch to a different device with Javascript enabled, or get someone else to interact on your behalf.
+            </p>
+        </noscript>
+        <div id="loading-placeholder">
+            <p class="explanatoryText">
+Processing...
+            </p>
+        </div>
+        <div id="something-went-wrong" class="pick-one-section">
+            <p class="explanatoryText">
+Something went wrong.
+Please contact someone in the Charity Bee to figure out what to do next.
+            </p>
+            <p class="explanatoryText">
+Also please give them this message &ldquo;<span id="message"></span>&rdquo;.
+            </p>
+            <p class="explanatoryText">
+If there isn&rsquo;t someone handy right now, if you take a screenshot of this screen you can show it to them later.
+            </p>
+        </div>
+        <div id="no-member-requested" class="pick-one-section">
+            <p class="explanatoryText">
+This device is not set up to act on behalf of any member.
+To set it up, you need to scan the QR code for that member and confirm that the QR code has identified the right
+member.
+            </p>
+        </div>
+        <div id="member-is-inactive" class="pick-one-section">
+            <p class="explanatoryText">
+You are trying to set this device up to act on behalf of <span class="moniker"></span> (<span class="name"></span>),
+but <span class="moniker"></span> is not marked as being an active member.
+            </p>
+            <p class="explanatoryText">
+If <span class="moniker"></span> is an active member, please contact someone in the Charity Bee to get them marked as
+being an active member.
+            </p>
+        </div>
+        <div id="already-set-up" class="pick-one-section">
+            <p class="explanatoryText">
+This device is set up to act on behalf of <span class="moniker"></span> (<span class="name"></span>).
+            </p>
+        </div>
+        <div id="override-member-id" class="pick-one-section">
+            <p class="explanatoryText">
+This device is currently set up to act on behalf of <span class="moniker"></span> (<span class="name"></span>).
+            </p>
+        </div>
+        <div id="store-member-id" class="pick-one-section">
+            <div class="explanatoryText">
+Please confirm that you're about to start interacting on behalf of <span class="moniker"></span>.
+            </div>
+            <div class="feedbackBlock">
+                <span class="feedbackPrompt">Name:</span>
+                <span class="feedbackValue name"></span>
+            </div>
+            <div class="ButtonBlock">
+                <button class="btn btn-yes" onclick="confirmStoringMember()">Yes</button>
+            </div>
+        </div>
+    </body>
+</html>
